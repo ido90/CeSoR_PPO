@@ -236,7 +236,7 @@ def test_features_extractor_target_net(model_class, share_features_extractor):
 
 def test_channel_first_env(tmp_path):
     # test_cnn uses environment with HxWxC setup that is transposed, but we
-    # also want to work with CxHxW envs directly without transposing wrapper.
+    # also want to work with CxHxW environments directly without transposing wrapper.
     SAVE_NAME = "cnn_model.zip"
 
     # Create environment with transposed images (CxHxW).

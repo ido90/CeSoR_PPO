@@ -123,7 +123,7 @@ class DQN(OffPolicyAlgorithm):
         self.exploration_final_eps = exploration_final_eps
         self.exploration_fraction = exploration_fraction
         self.target_update_interval = target_update_interval
-        # For updating the target network with multiple envs:
+        # For updating the target network with multiple environments:
         self._n_calls = 0
         self.max_grad_norm = max_grad_norm
         # "epsilon" for the epsilon-greedy exploration

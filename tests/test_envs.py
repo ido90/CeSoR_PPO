@@ -53,7 +53,7 @@ def test_custom_envs(env_class):
     env = env_class()
     with warnings.catch_warnings(record=True) as record:
         check_env(env)
-    # No warnings for custom envs
+    # No warnings for custom environments
     assert len(record) == 0
 
 
@@ -72,7 +72,7 @@ def test_bit_flipping(kwargs):
     with warnings.catch_warnings(record=True) as record:
         check_env(env)
 
-    # No warnings for custom envs
+    # No warnings for custom environments
     assert len(record) == 0
 
 
@@ -153,7 +153,7 @@ def test_non_default_action_spaces(new_action_space):
     with warnings.catch_warnings(record=True) as record:
         check_env(env)
 
-    # No warnings for custom envs
+    # No warnings for custom environments
     assert len(record) == 0
     # Change the action space
     env.action_space = new_action_space

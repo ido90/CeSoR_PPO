@@ -109,7 +109,7 @@ class VecEnv(ABC):
         Return attribute from vectorized environment.
 
         :param attr_name: The name of the attribute whose value to return
-        :param indices: Indices of envs to get attribute from
+        :param indices: Indices of environments to get attribute from
         :return: List of values of 'attr_name' in all environments
         """
         raise NotImplementedError()
@@ -121,7 +121,7 @@ class VecEnv(ABC):
 
         :param attr_name: The name of attribute to assign new value
         :param value: Value to assign to `attr_name`
-        :param indices: Indices of envs to assign value
+        :param indices: Indices of environments to assign value
         :return:
         """
         raise NotImplementedError()
@@ -132,7 +132,7 @@ class VecEnv(ABC):
         Call instance methods of vectorized environments.
 
         :param method_name: The name of the environment method to invoke.
-        :param indices: Indices of envs whose method to call
+        :param indices: Indices of environments whose method to call
         :param method_args: Any positional arguments to provide in the call
         :param method_kwargs: Any keyword arguments to provide in the call
         :return: List of items returned by the environment's method call
@@ -145,7 +145,7 @@ class VecEnv(ABC):
         Check if environments are wrapped with a given wrapper.
 
         :param method_name: The name of the environment method to invoke.
-        :param indices: Indices of envs whose method to call
+        :param indices: Indices of environments whose method to call
         :param method_args: Any positional arguments to provide in the call
         :param method_kwargs: Any keyword arguments to provide in the call
         :return: True if the env is wrapped, False otherwise, for each env queried.
@@ -227,7 +227,7 @@ class VecEnv(ABC):
         """
         Convert a flexibly-typed reference to environment indices to an implied list of indices.
 
-        :param indices: refers to indices of envs.
+        :param indices: refers to indices of environments.
         :return: the implied list of indices.
         """
         if indices is None:

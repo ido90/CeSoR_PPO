@@ -172,7 +172,7 @@ class BaseAlgorithm(ABC):
 
             if not support_multi_env and self.n_envs > 1:
                 raise ValueError(
-                    "Error: the model does not support multiple envs; it requires " "a single vectorized environment."
+                    "Error: the model does not support multiple environments; it requires " "a single vectorized environment."
                 )
 
             # Catch common mistake: using MlpPolicy/CnnPolicy instead of MultiInputPolicy

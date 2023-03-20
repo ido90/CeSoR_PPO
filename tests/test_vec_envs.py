@@ -426,7 +426,7 @@ def test_framestack_vecenv():
     with pytest.raises(AssertionError):
         vec_env = VecFrameStack(vec_env, n_stack=2, channels_order="not_valid")
 
-    # Test that it works with non-image envs when no channels_order is given
+    # Test that it works with non-image environments when no channels_order is given
     vec_env = DummyVecEnv([make_non_image_env for _ in range(N_ENVS)])
     vec_env = VecFrameStack(vec_env, n_stack=2)
 

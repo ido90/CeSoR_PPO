@@ -63,7 +63,7 @@ class Image:
     :param image: image to log
     :param dataformats: Image data format specification of the form NCHW, NHWC, CHW, HWC, HW, WH, etc.
         More info in add_image method doc at https://pytorch.org/docs/stable/tensorboard.html
-        Gym envs normally use 'HWC' (channel last)
+        Gym environments normally use 'HWC' (channel last)
     """
 
     def __init__(self, image: Union[th.Tensor, np.ndarray, str], dataformats: str):

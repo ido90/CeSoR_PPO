@@ -455,7 +455,7 @@ class OffPolicyAlgorithm(BaseAlgorithm):
                     # VecNormalize normalizes the terminal observation
                     if self._vec_normalize_env is not None:
                         next_obs_ = self._vec_normalize_env.unnormalize_obs(next_obs_)
-                    # Replace next obs for the correct envs
+                    # Replace next obs for the correct environments
                     for key in next_obs.keys():
                         next_obs[key][i] = next_obs_[key]
                 else:

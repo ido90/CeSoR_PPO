@@ -14,6 +14,8 @@ from stable_baselines3.common.type_aliases import GymEnv, MaybeCallback, Schedul
 from stable_baselines3.common.utils import obs_as_tensor, safe_mean
 from stable_baselines3.common.vec_env import VecEnv
 
+import cross_entropy_sampler as cem
+
 SelfOnPolicyAlgorithm = TypeVar("SelfOnPolicyAlgorithm", bound="OnPolicyAlgorithm")
 
 
@@ -71,6 +73,7 @@ class OnPolicyAlgorithm(BaseAlgorithm):
         device: Union[th.device, str] = "auto",
         _init_setup_model: bool = True,
         supported_action_spaces: Optional[Tuple[spaces.Space, ...]] = None,
+        cem_alpha: float = 0.0,
     ):
         super().__init__(
             policy=policy,
@@ -94,6 +97,12 @@ class OnPolicyAlgorithm(BaseAlgorithm):
         self.vf_coef = vf_coef
         self.max_grad_norm = max_grad_norm
         self.rollout_buffer = None
+        self.cem = None
+        if 0<cem_alpha<1:
+            print('\nCreating cem sampler.\n')
+            self.cem = cem.get_cem_sampler(env, seed, cem_alpha)
+            # if not os.path.exists('logs/models/'):
+            #     os.makedirs('logs/models/')
 
         if _init_setup_model:
             self._setup_model()

@@ -188,9 +188,9 @@ class SubprocVecEnv(VecEnv):
     def _get_target_remotes(self, indices: VecEnvIndices) -> List[Any]:
         """
         Get the connection object needed to communicate with the wanted
-        envs that are in subprocesses.
+        environments that are in subprocesses.
 
-        :param indices: refers to indices of envs.
+        :param indices: refers to indices of environments.
         :return: Connection object to communicate between processes.
         """
         indices = self._get_indices(indices)

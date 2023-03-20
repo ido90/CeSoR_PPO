@@ -99,7 +99,7 @@ def _check_nan(env: gym.Env) -> None:
 
 def _is_goal_env(env: gym.Env) -> bool:
     """
-    Check if the env uses the convention for goal-conditioned envs (previously, the gym.GoalEnv interface)
+    Check if the env uses the convention for goal-conditioned environments (previously, the gym.GoalEnv interface)
     """
     if isinstance(env, gym.Wrapper):  # We need to unwrap the env since gym.Wrapper has the compute_reward method
         return _is_goal_env(env.unwrapped)
@@ -267,7 +267,7 @@ def _check_returned_values(env: gym.Env, observation_space: spaces.Space, action
 def _check_spaces(env: gym.Env) -> None:
     """
     Check that the observation and action spaces are defined and inherit from spaces.Space. For
-    envs that follow the goal-conditioned standard (previously, the gym.GoalEnv interface) we check
+    environments that follow the goal-conditioned standard (previously, the gym.GoalEnv interface) we check
     the observation space is gym.spaces.Dict
     """
     # Helper to link to the code, because gym has no proper documentation
@@ -282,7 +282,7 @@ def _check_spaces(env: gym.Env) -> None:
     if _is_goal_env(env):
         assert isinstance(
             env.observation_space, spaces.Dict
-        ), "Goal conditioned envs (previously gym.GoalEnv) require the observation space to be gym.spaces.Dict"
+        ), "Goal conditioned environments (previously gym.GoalEnv) require the observation space to be gym.spaces.Dict"
 
 
 # Check render cannot be covered by CI

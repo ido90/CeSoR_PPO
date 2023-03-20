@@ -83,7 +83,7 @@ def test_callbacks(tmp_path, model_class):
     # Automatic wrapping, old way of doing callbacks
     model.learn(500, callback=lambda _locals, _globals: True)
 
-    # Testing models that support multiple envs
+    # Testing models that support multiple environments
     if model_class in [A2C, PPO]:
         max_episodes = 1
         n_envs = 2

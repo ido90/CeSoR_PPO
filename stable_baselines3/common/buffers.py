@@ -240,7 +240,7 @@ class ReplayBuffer(BaseBuffer):
         done: np.ndarray,
         infos: List[Dict[str, Any]],
     ) -> None:
-        # Reshape needed when using multiple envs with discrete observations
+        # Reshape needed when using multiple environments with discrete observations
         # as numpy cannot broadcast (n_discrete,) to (n_discrete, 1)
         if isinstance(self.observation_space, spaces.Discrete):
             obs = obs.reshape((self.n_envs, *self.obs_shape))
@@ -425,7 +425,7 @@ class RolloutBuffer(BaseBuffer):
             # Reshape 0-d tensor to avoid error
             log_prob = log_prob.reshape(-1, 1)
 
-        # Reshape needed when using multiple envs with discrete observations
+        # Reshape needed when using multiple environments with discrete observations
         # as numpy cannot broadcast (n_discrete,) to (n_discrete, 1)
         if isinstance(self.observation_space, spaces.Discrete):
             obs = obs.reshape((self.n_envs, *self.obs_shape))
@@ -577,7 +577,7 @@ class DictReplayBuffer(ReplayBuffer):
     ) -> None:  # pytype: disable=signature-mismatch
         # Copy to avoid modification by reference
         for key in self.observations.keys():
-            # Reshape needed when using multiple envs with discrete observations
+            # Reshape needed when using multiple environments with discrete observations
             # as numpy cannot broadcast (n_discrete,) to (n_discrete, 1)
             if isinstance(self.observation_space.spaces[key], spaces.Discrete):
                 obs[key] = obs[key].reshape((self.n_envs,) + self.obs_shape[key])
@@ -735,7 +735,7 @@ class DictRolloutBuffer(RolloutBuffer):
 
         for key in self.observations.keys():
             obs_ = np.array(obs[key]).copy()
-            # Reshape needed when using multiple envs with discrete observations
+            # Reshape needed when using multiple environments with discrete observations
             # as numpy cannot broadcast (n_discrete,) to (n_discrete, 1)
             if isinstance(self.observation_space.spaces[key], spaces.Discrete):
                 obs_ = obs_.reshape((self.n_envs,) + self.obs_shape[key])
