@@ -74,6 +74,7 @@ def evaluate_policy(
     n_envs = env.num_envs
     episode_rewards = []
     episode_lengths = []
+    tasks = []
 
     episode_counts = np.zeros(n_envs, dtype="int")
     # Divides episodes among different sub environments in the vector as evenly as possible
@@ -123,10 +124,16 @@ def evaluate_policy(
         if render:
             env.render()
 
+        if np.any(dones):
+            if not np.all(dones):
+                warnings.warn(f'only {np.sum(dones)} dones out of {len(dones)}.')
+            tasks.extend(list(env.get_task()))
+            env.reset()
+
     mean_reward = np.mean(episode_rewards)
     std_reward = np.std(episode_rewards)
     if reward_threshold is not None:
         assert mean_reward > reward_threshold, "Mean reward below threshold: " f"{mean_reward:.2f} < {reward_threshold:.2f}"
     if return_episode_rewards:
-        return episode_rewards, episode_lengths
+        return episode_rewards, episode_lengths, tasks
     return mean_reward, std_reward
