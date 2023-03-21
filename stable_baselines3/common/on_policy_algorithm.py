@@ -106,6 +106,8 @@ class OnPolicyAlgorithm(BaseAlgorithm):
                 env_name = str(env.envs[0].unwrapped.spec)
                 env_name = env_name[env_name.find('(')+1:-1]
             self.cem = cem.get_cem_sampler(env_name, seed, cem_alpha)
+            # initialize tasks
+            env.set_task([self.cem.sample()[0] for _ in range(env.num_envs)])
             # if not os.path.exists('logs/models/'):
             #     os.makedirs('logs/models/')
         self.weights = np.ones(env.num_envs, dtype=float)
@@ -191,16 +193,18 @@ class OnPolicyAlgorithm(BaseAlgorithm):
 
             if self.cem is not None:
                 for done, x in zip(dones, infos):
-                    # get return and update cem
-                    self.cem.update(x['meta_return'], save=self.cem.title)
+                    if done:
+                        # get return and update cem
+                        self.cem.update(x['meta_return'], save=self.cem.title)
                 tasks = []
                 for i, done in enumerate(dones):
-                    # sample and update task
-                    task, w = self.cem.sample()
-                    tasks.append(task)
-                    self.weights[i] = w
+                    if done:
+                        # sample and update task
+                        task, w = self.cem.sample()
+                        tasks.append(task)
+                        self.weights[i] = w
                 if tasks:
-                    if len(tasks) < 16:
+                    if len(tasks) < len(dones):
                         warnings.warn(f'not all tasks finished?? {len(tasks)}/{len(infos)}')
                     env.set_task(tasks)
 

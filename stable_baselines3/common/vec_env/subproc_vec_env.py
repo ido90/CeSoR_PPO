@@ -53,6 +53,12 @@ def _worker(
                 remote.send(getattr(env, data))
             elif cmd == "set_attr":
                 remote.send(setattr(env, data[0], data[1]))
+            elif cmd == "get_task":
+                remote.send(env.get_task())
+            elif cmd == "set_task":
+                remote.send(env.set_task(data))
+            elif cmd == "get_return":
+                remote.send(env.get_return())
             elif cmd == "is_wrapped":
                 remote.send(is_wrapped(env, data))
             else:
