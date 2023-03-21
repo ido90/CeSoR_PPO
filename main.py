@@ -45,6 +45,9 @@ def generate_exp_label(args):
 
         args.exp_label = f'{env_name}_{method}'
 
+        if isinstance(args.seed, (tuple,list)):
+            args.seed = args.seed[0]
+
     try:
         if args.exp_suffix:
             args.exp_label = f'{args.exp_label}_{args.exp_suffix}'
@@ -95,14 +98,26 @@ if __name__ == '__main__':
                         normalise_rew=args.norm_rew_for_policy, ret_rms=None,
                         tasks=None,
                         )
+
+    ngc_run = os.path.isdir('/ws')
+    if ngc_run:
+        ngc_dir = '/result/wandb/'  # args.ngc_path
+        os.makedirs(ngc_dir, exist_ok=True)
+        logging.info('NGC run detected. Setting path to workspace: {}'.format(ngc_dir))
+        wandb.init(project="roml", sync_tensorboard=True, config=args, dir=ngc_dir)
+    else:
+        wandb.init(project="roml", sync_tensorboard=True, config=args)
     logger = configure(wandb.run.dir, ["stdout", "tensorboard"])
     # n_steps = config['ppo']['steps_per_epoch_per_env']
     # total_timesteps = config['ppo']['total_steps']
     train_algo = PPO  # if learning_method == 'ppo' else CuQuantumPPO
     # callback = CustomEvalCallback(config, n_eval_episodes=config['eval']['n_eval_episodes'],
     #                               eval_freq=config['eval']['eval_freq'])
-    model = PPO(policy=MlpPolicy, env=env, policy_kwargs={'config': config}, tensorboard_log='./runs', n_steps=n_steps)
+    model = PPO(policy=MlpPolicy, env=env, tensorboard_log='./runs', seed=args.seed,
+                env_name=args.env_name, cem_alpha=args.alpha if args.cem else 0)
     model.set_logger(logger)
+    model.learn(args.num_frames)
+
     if config['model'].get('pretrained_model', None):
         logging.info(f'Training for {int(total_timesteps / (n_steps * env.num_envs))} epochs')
         model = model.load(config['model']['pretrained_model'], env=env, env_check=False,

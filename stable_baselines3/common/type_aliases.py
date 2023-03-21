@@ -34,6 +34,7 @@ class RolloutBufferSamples(NamedTuple):
     old_log_prob: th.Tensor
     advantages: th.Tensor
     returns: th.Tensor
+    ratio_weights: th.Tensor
 
 
 class DictRolloutBufferSamples(NamedTuple):

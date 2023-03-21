@@ -19,6 +19,11 @@ class HalfCheetahMassEnv(HalfCheetahEnv):
         self.eval_mode = eval_mode
         self._max_episode_steps = max_episode_steps
         self.task_dim = 1
+        self.task = None
+        self._time = 0
+        self._return = 0
+        self._last_return = 0
+        self._curr_rets = []
         super(HalfCheetahMassEnv, self).__init__()
         self.observation_space = Box(low=-np.inf, high=np.inf, shape=(20,),
                                      dtype=np.float64)
@@ -26,10 +31,7 @@ class HalfCheetahMassEnv(HalfCheetahEnv):
         self.original_mass_vec = self.model.body_mass.copy()  # 8 elements
         self.set_task(self.sample_task())
 
-        self._time = 0
-        self._return = 0
-        self._last_return = 0
-        self._curr_rets = []
+
 
     def step(self, action):
         xposbefore = self.sim.data.qpos[0]
@@ -45,9 +47,7 @@ class HalfCheetahMassEnv(HalfCheetahEnv):
         reward_height = observation[0]
         reward = forward_reward - ctrl_cost + reward_height
         done = False
-        infos = dict(reward_forward=forward_reward,
-                     reward_ctrl=-ctrl_cost,
-                     task=self.get_task())
+
         self._time += 1
         self._return += reward
         if self._time % self._max_episode_steps == 0:
@@ -56,13 +56,14 @@ class HalfCheetahMassEnv(HalfCheetahEnv):
             self._last_return = self._return
             self._curr_rets.append(self._return)
             self._return = 0
+        infos = dict(reward_forward=forward_reward,
+                     reward_ctrl=-ctrl_cost,
+                     meta_return=self.get_last_return(),
+                     task=self.get_task())
         return observation, reward, done, infos
 
     def get_last_return(self):
         return np.sum(self._curr_rets)
-
-    def seed(self, seed):
-        return
 
     def set_task(self, task):
         if isinstance(task, np.ndarray):

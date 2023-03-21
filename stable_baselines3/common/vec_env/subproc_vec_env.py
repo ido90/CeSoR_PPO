@@ -196,6 +196,48 @@ class SubprocVecEnv(VecEnv):
         indices = self._get_indices(indices)
         return [self.remotes[i] for i in indices]
 
+    def get_images(self):
+        self._assert_not_closed()
+        for pipe in self.remotes:
+            pipe.send(('render', None))
+        imgs = [pipe.recv() for pipe in self.remotes]
+        return imgs
+
+    def _assert_not_closed(self):
+        assert not self.closed, "Trying to operate on a SubprocVecEnv after calling close()"
+
+    def get_env_attr(self, attr):
+        self.remotes[0].send((attr, None))
+        return self.remotes[0].recv()
+
+    def get_return(self):
+        self._assert_not_closed()
+        for remote in self.remotes:
+            remote.send(('get_return', None))
+        return np.stack([remote.recv() for remote in self.remotes])
+
+    def get_task(self):
+        self._assert_not_closed()
+        for remote in self.remotes:
+            remote.send(('get_task', None))
+        return np.stack([remote.recv() for remote in self.remotes])
+
+    def set_task(self, tasks):
+        self._assert_not_closed()
+        for remote, task in zip(self.remotes, tasks):
+            remote.send(('set_task', task))
+        out_tasks = []
+        for remote in self.remotes:
+            out_tasks.append(remote.recv())
+        return np.stack(out_tasks)
+
+    def get_belief(self):
+        self._assert_not_closed()
+        for remote in self.remotes:
+            remote.send(('get_belief', None))
+        return np.stack([remote.recv() for remote in self.remotes])
+
+
 
 def _flatten_obs(obs: Union[List[VecEnvObs], Tuple[VecEnvObs]], space: spaces.Space) -> VecEnvObs:
     """

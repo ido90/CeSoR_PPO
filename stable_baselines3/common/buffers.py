@@ -350,6 +350,7 @@ class RolloutBuffer(BaseBuffer):
         self.gamma = gamma
         self.observations, self.actions, self.rewards, self.advantages = None, None, None, None
         self.returns, self.episode_starts, self.values, self.log_probs = None, None, None, None
+        self.ratio_weights = None
         self.generator_ready = False
         self.reset()
 
@@ -362,6 +363,7 @@ class RolloutBuffer(BaseBuffer):
         self.values = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
         self.log_probs = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
         self.advantages = np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
+        self.ratio_weights =  np.zeros((self.buffer_size, self.n_envs), dtype=np.float32)
         self.generator_ready = False
         super().reset()
 
@@ -410,6 +412,7 @@ class RolloutBuffer(BaseBuffer):
         episode_start: np.ndarray,
         value: th.Tensor,
         log_prob: th.Tensor,
+        ratio_weights: th.Tensor,
     ) -> None:
         """
         :param obs: Observation
@@ -432,7 +435,7 @@ class RolloutBuffer(BaseBuffer):
 
         # Same reshape, for actions
         action = action.reshape((self.n_envs, self.action_dim))
-
+        self.ratio_weights[self.pos] = np.array(ratio_weights).copy()
         self.observations[self.pos] = np.array(obs).copy()
         self.actions[self.pos] = np.array(action).copy()
         self.rewards[self.pos] = np.array(reward).copy()
@@ -455,6 +458,7 @@ class RolloutBuffer(BaseBuffer):
                 "log_probs",
                 "advantages",
                 "returns",
+                "ratio_weights",
             ]
 
             for tensor in _tensor_names:
@@ -482,6 +486,7 @@ class RolloutBuffer(BaseBuffer):
             self.log_probs[batch_inds].flatten(),
             self.advantages[batch_inds].flatten(),
             self.returns[batch_inds].flatten(),
+            self.ratio_weights[batch_inds].flatten(),
         )
         return RolloutBufferSamples(*tuple(map(self.to_torch, data)))
 

@@ -46,15 +46,15 @@ def make_vec_envs(env_name, seed, num_processes, gamma,
             for i in range(num_processes)]
 
     if len(envs) > 1:
-        envs = SubprocVecEnv(envs)
+        envs = SubprocVecEnv(envs) #SubprocVecEnv(envs)
     else:
         envs = DummyVecEnv(envs)
 
-    if len(envs.observation_space.shape) == 1:
-        if gamma is None:
-            envs = VecNormalize(envs, norm_reward=normalise_rew)
-        else:
-            envs = VecNormalize(envs, norm_reward=normalise_rew, gamma=gamma)
+    # if len(envs.observation_space.shape) == 1:
+    #     if gamma is None:
+    #         envs = VecNormalize(envs, norm_reward=normalise_rew)
+    #     else:
+    #         envs = VecNormalize(envs, norm_reward=normalise_rew, gamma=gamma)
 
     # environments = VecPyTorch(environments, device)
 

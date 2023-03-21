@@ -97,6 +97,8 @@ class VariBadWrapper(gym.Wrapper):
             state = self.env.reset()
         except AttributeError:
             state = self.env.unwrapped.reset()
+        if isinstance(state, tuple):
+            state = state[0]
 
         self.episode_count = 0
         self.step_count_bamdp = 0

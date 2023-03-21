@@ -97,6 +97,8 @@ class PPO(OnPolicyAlgorithm):
         seed: Optional[int] = None,
         device: Union[th.device, str] = "auto",
         _init_setup_model: bool = True,
+        env_name: str = '',
+        cem_alpha: float = 0.0,
     ):
         super().__init__(
             policy,
@@ -116,6 +118,8 @@ class PPO(OnPolicyAlgorithm):
             device=device,
             seed=seed,
             _init_setup_model=False,
+            env_name=env_name,
+            cem_alpha=cem_alpha,
             supported_action_spaces=(
                 spaces.Box,
                 spaces.Discrete,
@@ -194,6 +198,7 @@ class PPO(OnPolicyAlgorithm):
             approx_kl_divs = []
             # Do a complete pass on the rollout buffer
             for rollout_data in self.rollout_buffer.get(self.batch_size):
+                weights = rollout_data.ratio_weights
                 actions = rollout_data.actions
                 if isinstance(self.action_space, spaces.Discrete):
                     # Convert discrete action from float to long
@@ -217,7 +222,8 @@ class PPO(OnPolicyAlgorithm):
                 # clipped surrogate loss
                 policy_loss_1 = advantages * ratio
                 policy_loss_2 = advantages * th.clamp(ratio, 1 - clip_range, 1 + clip_range)
-                policy_loss = -th.min(policy_loss_1, policy_loss_2).mean()
+                policy_loss = -th.min(policy_loss_1, policy_loss_2)
+                policy_loss = (policy_loss*weights).mean()
 
                 # Logging
                 pg_losses.append(policy_loss.item())
@@ -234,15 +240,15 @@ class PPO(OnPolicyAlgorithm):
                         values - rollout_data.old_values, -clip_range_vf, clip_range_vf
                     )
                 # Value loss using the TD(gae_lambda) target
-                value_loss = F.mse_loss(rollout_data.returns, values_pred)
+                value_loss = F.mse_loss(rollout_data.returns*weights.sqrt(), values_pred*weights.sqrt())
                 value_losses.append(value_loss.item())
 
                 # Entropy loss favor exploration
                 if entropy is None:
                     # Approximate entropy when no analytical form
-                    entropy_loss = -th.mean(-log_prob)
+                    entropy_loss = -th.mean(-log_prob*weights)
                 else:
-                    entropy_loss = -th.mean(entropy)
+                    entropy_loss = -th.mean(entropy*weights)
 
                 entropy_losses.append(entropy_loss.item())
 

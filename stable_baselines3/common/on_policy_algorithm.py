@@ -1,5 +1,6 @@
 import sys
 import time
+import warnings
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import numpy as np
@@ -73,6 +74,7 @@ class OnPolicyAlgorithm(BaseAlgorithm):
         device: Union[th.device, str] = "auto",
         _init_setup_model: bool = True,
         supported_action_spaces: Optional[Tuple[spaces.Space, ...]] = None,
+        env_name='',
         cem_alpha: float = 0.0,
     ):
         super().__init__(
@@ -100,9 +102,13 @@ class OnPolicyAlgorithm(BaseAlgorithm):
         self.cem = None
         if 0<cem_alpha<1:
             print('\nCreating cem sampler.\n')
-            self.cem = cem.get_cem_sampler(env, seed, cem_alpha)
+            if not env_name:
+                env_name = str(env.envs[0].unwrapped.spec)
+                env_name = env_name[env_name.find('(')+1:-1]
+            self.cem = cem.get_cem_sampler(env_name, seed, cem_alpha)
             # if not os.path.exists('logs/models/'):
             #     os.makedirs('logs/models/')
+        self.weights = np.ones(env.num_envs, dtype=float)
 
         if _init_setup_model:
             self._setup_model()
@@ -181,8 +187,22 @@ class OnPolicyAlgorithm(BaseAlgorithm):
                 clipped_actions = np.clip(actions, self.action_space.low, self.action_space.high)
 
             new_obs, rewards, dones, infos = env.step(clipped_actions)
-
             self.num_timesteps += env.num_envs
+
+            if self.cem is not None:
+                for done, x in zip(dones, infos):
+                    # get return and update cem
+                    self.cem.update(x['meta_return'], save=self.cem.title)
+                tasks = []
+                for i, done in enumerate(dones):
+                    # sample and update task
+                    task, w = self.cem.sample()
+                    tasks.append(task)
+                    self.weights[i] = w
+                if tasks:
+                    if len(tasks) < 16:
+                        warnings.warn(f'not all tasks finished?? {len(tasks)}/{len(infos)}')
+                    env.set_task(tasks)
 
             # Give access to local variables
             callback.update_locals(locals())
@@ -209,7 +229,7 @@ class OnPolicyAlgorithm(BaseAlgorithm):
                         terminal_value = self.policy.predict_values(terminal_obs)[0]
                     rewards[idx] += self.gamma * terminal_value
 
-            rollout_buffer.add(self._last_obs, actions, rewards, self._last_episode_starts, values, log_probs)
+            rollout_buffer.add(self._last_obs, actions, rewards, self._last_episode_starts, values, log_probs, self.weights)
             self._last_obs = new_obs
             self._last_episode_starts = dones
 
