@@ -195,7 +195,7 @@ class OnPolicyAlgorithm(BaseAlgorithm):
                 for done, x in zip(dones, infos):
                     if done:
                         # get return and update cem
-                        self.cem.update(x['meta_return'], save=self.cem.title)
+                        self.cem.update(x['meta_return'], save=True)
                 tasks = []
                 for i, done in enumerate(dones):
                     if done:
