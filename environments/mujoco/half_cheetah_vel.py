@@ -30,13 +30,14 @@ class HalfCheetahVelEnv(HalfCheetahEnv):
         self.set_task(self.sample_tasks(1)[0])
         self._max_episode_steps = max_episode_steps
         self.task_dim = 1
-        super(HalfCheetahVelEnv, self).__init__()
-        self.observation_space = Box(low=-np.inf, high=np.inf, shape=(20,),
-                                     dtype=np.float64)
+        self.task = None
         self._time = 0
         self._return = 0
         self._last_return = 0
         self._curr_rets = []
+        super(HalfCheetahVelEnv, self).__init__()
+        self.observation_space = Box(low=-np.inf, high=np.inf, shape=(20,),
+                                     dtype=np.float64)
 
     def step(self, action):
         xposbefore = self.sim.data.qpos[0]
@@ -50,9 +51,6 @@ class HalfCheetahVelEnv(HalfCheetahEnv):
         observation = self._get_obs()
         reward = forward_reward - ctrl_cost
         done = False
-        infos = dict(reward_forward=forward_reward,
-                     reward_ctrl=-ctrl_cost,
-                     task=self.get_task())
         self._time += 1
         self._return += reward
         if self._time % self._max_episode_steps == 0:
@@ -61,6 +59,10 @@ class HalfCheetahVelEnv(HalfCheetahEnv):
             self._last_return = self._return
             self._curr_rets.append(self._return)
             self._return = 0
+        infos = dict(reward_forward=forward_reward,
+                     reward_ctrl=-ctrl_cost,
+                     meta_return=self.get_last_return(),
+                     task=self.get_task())
         return observation, reward, done, infos
 
     def get_last_return(self):
