@@ -33,6 +33,11 @@ def get_cem_sampler(env_name, seed, alpha=0.05):
             0.5 * np.ones(3), ref_alpha=alpha, batch_size=8*16,
             n_orig_per_batch=0.2, soft_update=0.5, title=f'hum_body_{sfx}',
             titles=('mass', 'damping', 'head_size'))
+    elif env_name == 'HalfCheetahMulti-v0':
+        return LogBeta(
+            0.5 * np.ones(10), log_range=(-0.5, 0.5), ref_alpha=alpha, batch_size=32*16,
+            n_orig_per_batch=0.2, soft_update=0.5, title=f'hc_multi_{sfx}',
+            titles=[f'task{i}' for i in range(10)])
     elif env_name == 'AntMass-v0':
         return LogBeta1D(
             0.5, ref_alpha=alpha, batch_size=8*16,

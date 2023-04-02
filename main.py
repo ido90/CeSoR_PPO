@@ -7,7 +7,7 @@ import torch
 from config import args_khazad_dum_varibad
 from config.mujoco import args_cheetah_vel_rl2, args_cheetah_vel_varibad, args_cheetah_mass_varibad, \
     args_cheetah_body_varibad, args_ant_goal_rl2, args_ant_goal_varibad, args_ant_mass_varibad, \
-    args_humanoid_vel_varibad, args_humanoid_mass_varibad, args_humanoid_body_varibad
+    args_cheetah_multi_varibad, args_humanoid_vel_varibad, args_humanoid_mass_varibad, args_humanoid_body_varibad
 from environments.parallel_envs import make_vec_envs
 from stable_baselines3.ppo import MlpPolicy
 from stable_baselines3.ppo.ppo import PPO
@@ -39,6 +39,7 @@ def generate_exp_label(args):
             'HalfCheetahVel-v0': 'hcv',
             'HalfCheetahMass-v0': 'hcm',
             'HalfCheetahBody-v0': 'hcb',
+            'HalfCheetahMulti-v0': 'hcm',
             'HumanoidVel-v0': 'humv',
             'HumanoidMass-v0': 'humm',
             'HumanoidBody-v0': 'humb',
@@ -82,6 +83,8 @@ if __name__ == '__main__':
         args = args_cheetah_mass_varibad.get_args(rest_args)
     elif env == 'cheetah_body_varibad':
         args = args_cheetah_body_varibad.get_args(rest_args)
+    elif env == 'cheetah_multi_varibad':
+        args = args_cheetah_multi_varibad.get_args(rest_args)
     #
     # - Humanoid -
     elif env == 'humanoid_vel_varibad':
